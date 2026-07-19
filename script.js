@@ -53,15 +53,12 @@ document.getElementById("msg").innerHTML=error.message;
 function googleLogin(){
 
 const provider=new firebase.auth.GoogleAuthProvider();
-
-auth.signInWithPopup(provider)
-
+auth.signInWithEmailAndPassword(email,password)
 .then(()=>{
-window.location="home.html";
+    checkProfile();
 })
-
 .catch(error=>{
-document.getElementById("msg").innerHTML=error.message;
+    document.getElementById("msg").innerHTML=error.message;
 });
 
 }
