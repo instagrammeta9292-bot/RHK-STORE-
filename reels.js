@@ -98,3 +98,4 @@ function triggerBigHeartPopupBurstAnimation(containerCard) {
     containerCard.appendChild(heart);
     setTimeout(() => { heart.remove(); }, 700);
 }
+
