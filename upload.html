@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Post</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+body{
+background:#111;
+color:white;
+font-family:Arial;
+padding:20px;
+}
+
+.container{
+max-width:400px;
+margin:auto;
+}
+
+input,textarea,button{
+width:100%;
+margin-top:15px;
+padding:15px;
+border-radius:10px;
+border:none;
+}
+
+textarea{
+height:100px;
+}
+
+button{
+background:#00c853;
+color:white;
+font-size:18px;
+font-weight:bold;
+}
+
+img{
+width:100%;
+margin-top:20px;
+border-radius:15px;
+display:none;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>Create Post</h2>
+
+<input type="file" id="image">
+
+<textarea id="caption" placeholder="Write a caption..."></textarea>
+
+<button onclick="uploadPost()">
+Upload
+</button>
+
+<img id="preview">
+
+<p id="msg"></p>
+
+</div>
+
+<script src="upload.js"></script>
+
+</body>
+</html>
