@@ -3,12 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function archiveExpiredStory(storyId, storyObject) {
+    // Avoid double logging archived objects safely
+    if(appDatabaseState.archivedStories.some(s => s.id === storyId)) return;
+
     appDatabaseState.archivedStories.push({
         id: storyId,
         url: storyObject.url,
         mode: storyObject.mode,
         archivedAt: Date.now()
     });
+    
+    saveAppStateToVault(); // Sync down onto disk database
     syncArchiveContainerGridDOM();
 }
 
@@ -39,7 +44,6 @@ function syncArchiveContainerGridDOM() {
             const container = document.getElementById('story-viewer-media-container');
             document.getElementById('story-viewer-user-name').innerText = "Archived Story";
             document.getElementById('story-progress-fill').style.width = '100%';
-            
             container.innerHTML = item.mode === 'video' ? `<video src="${item.url}" autoplay controls></video>` : `<img src="${item.url}">`;
             viewer.classList.remove('hidden');
         });
@@ -47,4 +51,3 @@ function syncArchiveContainerGridDOM() {
         populatedGrid.appendChild(frame);
     });
 }
-
