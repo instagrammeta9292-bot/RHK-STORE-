@@ -1,81 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>RHK Login</title>
-
-<link rel="stylesheet" href="style.css">
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>rhk - Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
 
-<div class="container">
+    <div class="app-container">
+        
+        <!-- ================= TOP NAVBAR ================= -->
+        <header id="app-top-navbar" class="top-navbar">
+            <div class="brand-logo" id="brand-home">
+                rhk <i class="fa-solid fa-chevron-down logo-dropdown"></i>
+            </div>
+            <div class="nav-actions">
+                <button id="btn-create" class="nav-icon-btn"><i class="fa-regular fa-square-plus"></i></button>
+                <button id="btn-notifications" class="nav-icon-btn"><i class="fa-regular fa-heart"></i></button>
+            </div>
+        </header>
 
-<div class="glass">
+        <!-- Dynamic Overlay Option Sheet for + Button -->
+        <div id="create-options-overlay" class="create-overlay hidden">
+            <div class="overlay-content">
+                <button id="opt-post" class="overlay-item"><i class="fa-regular fa-image"></i> Post</button>
+                <button id="opt-story" class="overlay-item"><i class="fa-regular fa-circle-dot"></i> Story</button>
+                <button id="opt-reels" class="overlay-item"><i class="fa-square-caret-right fa-regular"></i> Reel</button>
+                <button id="btn-close-overlay" class="overlay-close-btn">Cancel</button>
+            </div>
+        </div>
 
-<div class="logo">
-<h1>RHK</h1>
-<p>Welcome Back</p>
-</div>
+        <input type="file" id="global-file-picker" style="display: none;" />
 
-<div class="inputBox">
-<input
-type="email"
-id="email"
-placeholder="Email Address">
-</div>
+        <!-- ================= FIXED STORY VIEWER WORKSPACE ================= -->
+        <div id="story-viewer-modal" class="story-viewer hidden">
+            <div class="story-viewer-progress-bar"><div id="story-progress-fill"></div></div>
+            <div class="story-viewer-header">
+                <div class="story-viewer-user">
+                    <div class="story-viewer-avatar" id="story-viewer-user-avatar"></div>
+                    <span class="story-viewer-username" id="story-viewer-user-name"></span>
+                </div>
+                <button id="btn-close-story-viewer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="story-viewer-media" id="story-viewer-media-container"></div>
+        </div>
 
-<div class="inputBox">
-<input
-type="password"
-id="password"
-placeholder="Password">
-</div>
+        <!-- ================= APP VIEWS VIEWPORTS CONTAINER ================= -->
+        
+        <!-- SCREEN 1: TIMELINE FEED -->
+        <main id="view-home" class="main-content app-view">
+            <div class="home-stories-block">
+                <section class="stories-container" id="dynamic-stories-list"></section>
+            </div>
+            <div class="home-feed-block">
+                <section class="feed-container" id="dynamic-feed-list">
+                    <div class="empty-state-placeholder" id="home-empty-state">
+                        <i class="fa-regular fa-images"></i>
+                        <p>Your timeline feed is empty.</p>
+                    </div>
+                </section>
+            </div>
+        </main>
 
-<button
-class="loginBtn"
-onclick="login()">
-Login
-</button>
+        <!-- SCREEN 2: SEARCH DISCOVER ENGINE (Screenshot #2 Clean UI Match) -->
+        <main id="view-search" class="main-content app-view hidden clean-white-bg">
+            <div class="search-header-container">
+                <div class="search-bar-wrapper">
+                    <i class="fa-solid fa-magnifying-glass search-bar-icon"></i>
+                    <input type="text" id="input-search-query" placeholder="Search">
+                </div>
+            </div>
+            <div class="search-results-viewport">
+                <!-- Grid layouts rendering aggregated images/videos dynamically populated -->
+                <div class="search-discover-grid" id="search-dynamic-grid"></div>
+                <div class="search-empty-fallback" id="search-empty-fallback-state">
+                    <i class="fa-solid fa-compass"></i>
+                    <p>Explore posts and discovery trends globally. Upload posts or reels to feed this workspace.</p>
+                </div>
+            </div>
+        </main>
 
-<button
-class="signupBtn"
-onclick="signup()">
-Create Account
-</button>
+        <!-- SCREEN 3: REELS IMMERSIVE PLAYER -->
+        <main id="view-reels" class="main-content app-view hidden gray-bg">
+            <div class="reels-vertical-slider" id="dynamic-reels-slider">
+                <div class="reels-empty-state" id="reels-empty-state">
+                    <i class="fa-square-caret-right fa-regular"></i>
+                    <p>No Reels uploaded yet.</p>
+                </div>
+            </div>
+        </main>
 
-<div class="or">
-<span>OR</span>
-</div>
+        <!-- SCREEN 4: DIRECT MESSAGES PIPELINE CHAT -->
+        <main id="view-messages" class="main-content app-view hidden clean-white-bg">
+            <div class="messages-header-bar">
+                <button class="messages-back-btn" id="btn-messages-back-to-home"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="messages-title-user dyn-username">username</div>
+                <i class="fa-regular fa-pen-to-square messages-compose-icon"></i>
+            </div>
+            <div class="messages-list-viewport">
+                <div class="messages-empty-state">
+                    <div class="messages-paper-plane-ring"><i class="fa-regular fa-paper-plane"></i></div>
+                    <h2>Share lines privately</h2>
+                    <p>Direct message threads containing context or links dynamically show up here.</p>
+                    <button class="messages-action-btn-link" onclick="alert('Message composition module loaded.')">Send message</button>
+                </div>
+            </div>
+        </main>
 
-<button
-class="googleBtn"
-onclick="googleLogin()">
+        <!-- SCREEN 5: NOTIFICATIONS INTERACTION HUB (Screenshot #1 Layout Match) -->
+        <main id="view-notifications" class="main-content app-view hidden clean-white-bg">
+            <div class="notifications-header-bar">
+                <button class="notifications-back-btn" id="btn-notifications-back-to-home"><i class="fa-solid fa-chevron-left"></i></button>
+                <h1>Notifications</h1>
+                <i class="fa-solid fa-chevron-left invisible-icon"></i>
+            </div>
+            <div class="notifications-content-scroller">
+                <h2 class="notifications-time-heading">This month</h2>
+                <!-- Dynamic active list structure targeted for operational interactions -->
+                <div class="notifications-list-container" id="notifications-dynamic-list"></div>
+            </div>
+        </main>
 
-<img
-src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
-width="22">
+        <!-- SCREEN 6: ACCOUNT PROFILE INTERFACE DASHBOARD -->
+        <main id="view-profile" class="main-content app-view hidden clean-white-bg">
+            <div class="profile-header-top-bar">
+                <i class="fa-solid fa-gear invisible-icon"></i>
+                <div class="profile-username-title"><span class="dyn-username">username</span> <i class="fa-solid fa-chevron-down title-arrow"></i></div>
+                <div class="profile-header-right-badges">
+                    <div class="threads-badge-icon" id="profile-threads-badge"><i class="fa-solid fa-circle-notch"></i><span class="alert-dot-count">9+</span></div>
+                </div>
+            </div>
 
-Continue with Google
+            <div class="profile-info-block">
+                <div class="profile-avatar-row">
+                    <div class="avatar-bubble-container">
+                        <div class="profile-main-avatar-placeholder" id="profile-avatar-display">
+                            <i class="fa-solid fa-camera camera-center-icon"></i>
+                        </div>
+                        <div class="note-cloud-popover" id="note-bubble">
+                            <span id="note-text-display">Note...</span>
+                            <div class="note-pointer-dot-1"></div>
+                            <div class="note-pointer-dot-2"></div>
+                        </div>
+                    </div>
+                    <div class="profile-stat-metric">
+                        <span class="metric-number" id="profile-posts-count">0</span>
+                        <span class="metric-label">posts</span>
+                    </div>
+                    <div class="profile-stat-metric">
+                        <span class="metric-number" id="profile-followers-count">19</span>
+                        <span class="metric-label">followers</span>
+                    </div>
+                    <div class="profile-stat-metric">
+                        <span class="metric-number" id="profile-following-count">30</span>
+                        <span class="metric-label">following</span>
+                    </div>
+                </div>
 
-</button>
+                <div class="profile-bio-text-wrapper">
+                    <h2 class="bio-display-name" id="profile-name-display">Display Name</h2>
+                    <div class="bio-alternate-handle"><i class="fa-solid fa-at"></i> <span class="dyn-username">username</span></div>
+                    <p class="bio-custom-text" id="profile-bio-description-display"></p>
+                    <a href="#" class="bio-web-link hidden" id="profile-web-link-display" target="_blank"><i class="fa-solid fa-link"></i> <span></span></a>
+                </div>
 
-<p id="msg"></p>
+                <div class="profile-action-buttons-row">
+                    <button class="profile-action-btn" id="btn-edit-profile-view">Edit Profile</button>
+                    <button class="profile-action-btn" id="btn-view-archive-view">View archive</button>
+                </div>
+            </div>
 
-</div>
+            <div class="profile-tabs-selector-bar">
+                <button class="tab-select-item active" id="tab-trigger-grid"><i class="fa-solid fa-table-cells"></i></button>
+                <button class="tab-select-item" id="tab-trigger-saved"><i class="fa-regular fa-bookmark"></i></button>
+                <button class="tab-select-item" id="tab-trigger-tagged"><i class="fa-regular fa-id-badge"></i></button>
+            </div>
 
-</div>
+            <div class="profile-grid-display-viewport">
+                <div class="profile-empty-share-box" id="profile-grid-empty-state">
+                    <div class="empty-camera-ring"><i class="fa-solid fa-camera"></i></div>
+                    <h1 class="empty-title-heading">Share photos</h1>
+                    <p class="empty-desc-para">When you share photos, they will appear on your profile.</p>
+                    <button class="empty-action-trigger-link" id="link-share-first">Share your first photo</button>
+                </div>
+                <div class="profile-populated-grid hidden" id="profile-active-grid"></div>
+                <div class="profile-populated-grid hidden" id="profile-saved-grid"></div>
+            </div>
+        </main>
 
-<script src="script.js"></script>
+        <!-- SCREEN 7: EDIT PROFILE CONTROL PANEL -->
+        <main id="view-edit-profile" class="main-content app-view hidden clean-white-bg">
+            <div class="edit-profile-header">
+                <button id="btn-back-from-edit" class="edit-nav-back"><i class="fa-solid fa-chevron-left"></i></button>
+                <h1>Edit Profile</h1>
+                <button id="btn-save-profile-data" class="edit-nav-done">Done</button>
+            </div>
+            
+            <div class="edit-profile-container">
+                <div class="edit-avatar-card">
+                    <div class="edit-avatar-preview" id="edit-avatar-circle">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="edit-avatar-info">
+                        <span class="edit-username-label dyn-username">username</span>
+                        <button id="btn-change-profile-photo" class="change-photo-link">Change photo</button>
+                    </div>
+                </div>
 
+                <div class="edit-input-group">
+                    <label class="edit-field-label">Name</label>
+                    <input type="text" id="input-edit-name" class="edit-text-field" placeholder="Name">
+                </div>
+
+                <div class="edit-input-group">
+                    <label class="edit-field-label">Username</label>
+                    <input type="text" id="input-edit-username" class="edit-text-field" placeholder="Username">
+                </div>
+
+                <div class="edit-input-group">
+                    <label class="edit-field-label">Website</label>
+                    <input type="text" id="input-edit-website" class="edit-text-field" placeholder="Website">
+                </div>
+
+                <div class="edit-input-group">
+                    <label class="edit-field-label">Bio</label>
+                    <textarea id="input-edit-bio" class="edit-textarea-field" maxlength="150" placeholder="Bio"></textarea>
+                    <div class="character-counter" id="bio-char-counter">0 / 150</div>
+                </div>
+
+                <div class="edit-toggle-row">
+                    <div class="toggle-label-block">
+                        <span class="toggle-title">Show Threads badge</span>
+                    </div>
+                    <label class="switch-control">
+                        <input type="checkbox" id="toggle-threads-badge" checked>
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </main>
+
+        <!-- SCREEN 8: HISTORICAL STORIES ARCHIVE -->
+        <main id="view-archive" class="main-content app-view hidden clean-white-bg">
+            <div class="archive-header-bar">
+                <button id="btn-back-from-archive" class="archive-nav-back"><i class="fa-solid fa-chevron-left"></i></button>
+                <h1>Stories Archive</h1>
+                <i class="fa-solid fa-chevron-left invisible-icon"></i>
+            </div>
+            <div id="archive-empty-state" class="archive-empty-container">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <h2>No Archived Stories</h2>
+                <p>Expired stories accumulate inside your archive storage module automatically.</p>
+            </div>
+            <div id="archive-populated-grid" class="archive-grid hidden"></div>
+        </main>
+
+        <!-- ================= BOTTOM NAVIGATION BAR ================= -->
+        <nav id="app-bottom-navbar" class="bottom-navbar">
+            <button id="nav-home" class="nav-btn active"><i class="fa-solid fa-house"></i></button>
+            <button id="nav-search" class="nav-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            <button id="nav-reels" class="nav-btn"><i class="fa-square-caret-right fa-regular"></i></button>
+            <button id="nav-messages" class="nav-btn"><i class="fa-regular fa-paper-plane"></i></button>
+            <button id="nav-profile" class="nav-btn profile-nav-wrapper">
+                <div class="nav-profile-placeholder" id="bottom-nav-avatar-circle"><i class="fa-solid fa-user"></i></div>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- Core Runtime Module Chains -->
+    <script src="search.js"></script>
+    <script src="messages.js"></script>
+    <script src="notifications.js"></script>
+    <script src="archive.js"></script>
+    <script src="edit-profile.js"></script>
+    <script src="post.js"></script>
+    <script src="story.js"></script>
+    <script src="reels.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
+
