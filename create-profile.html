@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Profile - RHK</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>RHK</h1>
+
+<img id="photo"
+src="https://via.placeholder.com/120"
+class="avatar">
+
+<input
+type="text"
+id="username"
+placeholder="Choose a username">
+
+<input
+type="text"
+id="name"
+placeholder="Full Name">
+
+<textarea
+id="bio"
+placeholder="Bio"></textarea>
+
+<button onclick="saveProfile()">
+Continue
+</button>
+
+</div>
+
+<script src="profile.js"></script>
+
+</body>
+</html>
