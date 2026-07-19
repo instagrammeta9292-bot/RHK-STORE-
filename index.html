@@ -1,39 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>RHK Login</title>
 
 <link rel="stylesheet" href="style.css">
 
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 </head>
 
 <body>
 
 <div class="container">
 
+<div class="glass">
+
 <div class="logo">
 <h1>RHK</h1>
 <p>Welcome Back</p>
 </div>
 
-<div class="card">
+<div class="inputBox">
+<input
+type="email"
+id="email"
+placeholder="Email Address">
+</div>
 
-<input type="email" id="email" placeholder="Email">
+<div class="inputBox">
+<input
+type="password"
+id="password"
+placeholder="Password">
+</div>
 
-<input type="password" id="password" placeholder="Password">
+<button
+class="loginBtn"
+onclick="login()">
+Login
+</button>
 
-<button onclick="login()">Login</button>
+<button
+class="signupBtn"
+onclick="signup()">
+Create Account
+</button>
 
-<button class="create" onclick="signup()">Create Account</button>
+<div class="or">
+<span>OR</span>
+</div>
 
-<div class="line">OR</div>
+<button
+class="googleBtn"
+onclick="googleLogin()">
 
-<button class="google" onclick="googleLogin()">
+<img
+src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/google/google-original.svg"
+width="22">
+
 Continue with Google
+
 </button>
 
 <p id="msg"></p>
