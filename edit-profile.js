@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
         profile.bio = bioTextArea.value.trim();
         profile.showThreadsBadge = toggleThreads.checked;
 
+        // Commit profile metadata updates to persistence memory
+        saveAppStateToVault();
         alert("Profile operational modifications successfully synchronized!");
         navigateToScreen('profile');
     });
@@ -62,9 +64,9 @@ window.launchAvatarDirectUpload = function() {
         const result = await sendToCloudinary(file);
         if(result.success && result.mode === 'image') {
             appDatabaseState.userProfile.avatarUrl = result.url;
+            saveAppStateToVault();
             applyUserIdentitySystemState();
-            alert("Avatar picture uploaded successfully!");
+            alert("Avatar picture uploaded and synchronized successfully!");
         }
     };
 };
-
