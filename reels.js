@@ -12,7 +12,9 @@ function launchReelsUpload() {
         const result = await sendToCloudinary(file);
         if(result.success) {
             const generatedItemId = 'item-' + Math.floor(Math.random() * 888888 + 111111);
+            
             appDatabaseState.reels.unshift({ id: generatedItemId, url: result.url, mode: result.mode });
+            saveAppStateToVault(); // Commit to persistent memory immediately
             
             appendMediaToTimelineFeed(generatedItemId, result.url, result.mode, 'REEL');
             appendMediaToVerticalReelsSlider(generatedItemId, result.url, result.mode);
@@ -39,6 +41,7 @@ function appendMediaToVerticalReelsSlider(id, mediaUrl, mode) {
     const reelItemHTML = `
         <div class="reel-snap-card" id="reel-card-${id}" data-reel-id="${id}">
             ${elementNodeTag}
+            
             <div class="reel-gesture-overlay" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:2;" 
                  onclick="handleReelGestureTouchTapSequence(event, '${id}')"></div>
             
@@ -68,7 +71,7 @@ function appendMediaToVerticalReelsSlider(id, mediaUrl, mode) {
         </div>
     `;
 
-    slider.appendChild(document.createRange().createContextualFragment(reelItemHTML));
+    slider.insertAdjacentHTML('afterbegin', reelItemHTML);
 }
 
 let lastReelTapTimeTracker = 0;
@@ -79,16 +82,19 @@ window.handleReelGestureTouchTapSequence = function(event, id) {
 
     if (tapLength < 250 && tapLength > 0) {
         handleDynamicItemLikeClick(id);
-        const heart = document.createElement('i');
-        heart.className = 'fa-solid fa-heart reel-heart-pop-animation';
-        event.currentTarget.appendChild(heart);
-        setTimeout(() => { heart.remove(); }, 700);
+        if(event && event.currentTarget) triggerBigHeartPopupBurstAnimation(event.currentTarget);
     } else {
         if(video && video.tagName === 'VIDEO') {
-            if (video.paused) video.play().catch(() => {});
-            else video.pause();
+            if (video.paused) { video.play().catch(() => {}); } 
+            else { video.pause(); }
         }
     }
     lastReelTapTimeTracker = currentTime;
 };
 
+function triggerBigHeartPopupBurstAnimation(containerCard) {
+    const heart = document.createElement('i');
+    heart.className = 'fa-solid fa-heart reel-heart-pop-animation';
+    containerCard.appendChild(heart);
+    setTimeout(() => { heart.remove(); }, 700);
+}
