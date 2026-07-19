@@ -1,4 +1,3 @@
-// FIXED: The complete operational logic code for Story Tray triggers and immediate viewing popup mounting
 function launchStoryUpload() {
     const picker = document.getElementById('global-file-picker');
     picker.removeAttribute('multiple');
@@ -12,17 +11,17 @@ function launchStoryUpload() {
 
         const result = await sendToCloudinary(file);
         if(result.success) {
-            renderStoryToTray(result.url, result.mode);
+            const storyId = 'user_' + Math.floor(Math.random() * 89999 + 10000);
+            appDatabaseState.activeStories[storyId] = { url: result.url, mode: result.mode, createdAt: Date.now() };
+            saveAppStateToVault();
+            
+            injectStoryNodeToDOM(storyId, result.url, result.mode, 0);
         }
     };
 }
 
-// FIXED: story-ring click handler mapped precisely to show the viewing window overlay dynamically
-function renderStoryToTray(url, mode) {
+function injectStoryNodeToDOM(storyId, url, mode, elapsedMs) {
     const tray = document.getElementById('dynamic-stories-list');
-    const storyId = 'story_' + Math.floor(Math.random() * 89999 + 10000);
-    
-    appDatabaseState.activeStories[storyId] = { url: url, mode: mode, createdAt: Date.now() };
     let thumbTag = mode === 'video' ? `<video src="${url}" muted playsinline></video>` : `<img src="${url}">`;
 
     const htmlNode = `
@@ -34,9 +33,13 @@ function renderStoryToTray(url, mode) {
             <span class="story-name">${appDatabaseState.userProfile.username}</span>
         </div>
     `;
-    
     tray.insertAdjacentHTML('afterbegin', htmlNode);
-    setTimeout(() => { triggerStoryExpirationPipeline(storyId); }, 24 * 60 * 60 * 1000);
+
+    // Dynamic calculated time delta to determine standard timeout triggers rules bounds
+    const baseLife = 24 * 60 * 60 * 1000;
+    const remainingTime = Math.max(0, baseLife - elapsedMs);
+
+    setTimeout(() => { triggerStoryExpirationPipeline(storyId); }, remainingTime);
 }
 
 window.triggerStoryExpirationPipeline = function(storyId) {
@@ -44,12 +47,14 @@ window.triggerStoryExpirationPipeline = function(storyId) {
     if(!targetStory) return;
 
     if(typeof archiveExpiredStory === 'function') archiveExpiredStory(storyId, targetStory);
+    
     const domElement = document.getElementById(`node-${storyId}`);
     if(domElement) domElement.remove();
+    
     delete appDatabaseState.activeStories[storyId];
+    saveAppStateToVault();
 };
 
-// FIXED: Comprehensive dynamic injection logic mapping for layout story viewer popup window
 function openStoryViewer(storyId) {
     haltAllBackgroundVideos();
     const target = appDatabaseState.activeStories[storyId];
@@ -58,8 +63,8 @@ function openStoryViewer(storyId) {
     const viewer = document.getElementById('story-viewer-modal');
     const container = document.getElementById('story-viewer-media-container');
     const progressBar = document.getElementById('story-progress-fill');
-    const profile = appDatabaseState.userProfile;
     
+    const profile = appDatabaseState.userProfile;
     document.getElementById('story-viewer-user-name').innerText = profile.username;
     document.getElementById('story-viewer-user-avatar').innerHTML = profile.avatarUrl ? `<img src="${profile.avatarUrl}">` : `<i class="fa-solid fa-user"></i>`;
     
@@ -75,7 +80,6 @@ function openStoryViewer(storyId) {
 
     let progress = 0;
     clearInterval(window.storyTimerInterval);
-    
     window.storyTimerInterval = setInterval(() => {
         progress += 1;
         progressBar.style.width = `${Math.min(progress, 100)}%`;
@@ -83,7 +87,7 @@ function openStoryViewer(storyId) {
             clearInterval(window.storyTimerInterval);
             closeStoryViewer();
         }
-    }, 50); // Standardized 5-second viewing lifespan metrics
+    }, 50);
 }
 
 function closeStoryViewer() {
@@ -96,4 +100,3 @@ function closeStoryViewer() {
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-close-story-viewer').addEventListener('click', closeStoryViewer);
 });
-
