@@ -34,22 +34,22 @@
 
         <input type="file" id="global-file-picker" style="display: none;" />
 
-        <!-- ================= FIXED STORY VIEWER WORKSPACE ================= -->
+        <!-- ================= FULLSCREEN STORY VIEWER ================= -->
         <div id="story-viewer-modal" class="story-viewer hidden">
             <div class="story-viewer-progress-bar"><div id="story-progress-fill"></div></div>
             <div class="story-viewer-header">
                 <div class="story-viewer-user">
-                    <div class="story-viewer-avatar" id="story-viewer-user-avatar"></div>
-                    <span class="story-viewer-username" id="story-viewer-user-name"></span>
+                    <div class="story-viewer-avatar" id="story-viewer-user-avatar"><i class="fa-solid fa-user"></i></div>
+                    <span class="story-viewer-username" id="story-viewer-user-name">Username</span>
                 </div>
                 <button id="btn-close-story-viewer"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="story-viewer-media" id="story-viewer-media-container"></div>
         </div>
 
-        <!-- ================= APP VIEWS VIEWPORTS CONTAINER ================= -->
+        <!-- ================= CORE VIEWS AND SCREENS PORTS ================= -->
         
-        <!-- SCREEN 1: TIMELINE FEED -->
+        <!-- VIEW 1: HOME FEED VIEW -->
         <main id="view-home" class="main-content app-view">
             <div class="home-stories-block">
                 <section class="stories-container" id="dynamic-stories-list"></section>
@@ -64,25 +64,7 @@
             </div>
         </main>
 
-        <!-- SCREEN 2: SEARCH DISCOVER ENGINE (Screenshot #2 Clean UI Match) -->
-        <main id="view-search" class="main-content app-view hidden clean-white-bg">
-            <div class="search-header-container">
-                <div class="search-bar-wrapper">
-                    <i class="fa-solid fa-magnifying-glass search-bar-icon"></i>
-                    <input type="text" id="input-search-query" placeholder="Search">
-                </div>
-            </div>
-            <div class="search-results-viewport">
-                <!-- Grid layouts rendering aggregated images/videos dynamically populated -->
-                <div class="search-discover-grid" id="search-dynamic-grid"></div>
-                <div class="search-empty-fallback" id="search-empty-fallback-state">
-                    <i class="fa-solid fa-compass"></i>
-                    <p>Explore posts and discovery trends globally. Upload posts or reels to feed this workspace.</p>
-                </div>
-            </div>
-        </main>
-
-        <!-- SCREEN 3: REELS IMMERSIVE PLAYER -->
+        <!-- VIEW 2: REELS SNAP VERTICAL VIEWER -->
         <main id="view-reels" class="main-content app-view hidden gray-bg">
             <div class="reels-vertical-slider" id="dynamic-reels-slider">
                 <div class="reels-empty-state" id="reels-empty-state">
@@ -92,38 +74,7 @@
             </div>
         </main>
 
-        <!-- SCREEN 4: DIRECT MESSAGES PIPELINE CHAT -->
-        <main id="view-messages" class="main-content app-view hidden clean-white-bg">
-            <div class="messages-header-bar">
-                <button class="messages-back-btn" id="btn-messages-back-to-home"><i class="fa-solid fa-arrow-left"></i></button>
-                <div class="messages-title-user dyn-username">username</div>
-                <i class="fa-regular fa-pen-to-square messages-compose-icon"></i>
-            </div>
-            <div class="messages-list-viewport">
-                <div class="messages-empty-state">
-                    <div class="messages-paper-plane-ring"><i class="fa-regular fa-paper-plane"></i></div>
-                    <h2>Share lines privately</h2>
-                    <p>Direct message threads containing context or links dynamically show up here.</p>
-                    <button class="messages-action-btn-link" onclick="alert('Message composition module loaded.')">Send message</button>
-                </div>
-            </div>
-        </main>
-
-        <!-- SCREEN 5: NOTIFICATIONS INTERACTION HUB (Screenshot #1 Layout Match) -->
-        <main id="view-notifications" class="main-content app-view hidden clean-white-bg">
-            <div class="notifications-header-bar">
-                <button class="notifications-back-btn" id="btn-notifications-back-to-home"><i class="fa-solid fa-chevron-left"></i></button>
-                <h1>Notifications</h1>
-                <i class="fa-solid fa-chevron-left invisible-icon"></i>
-            </div>
-            <div class="notifications-content-scroller">
-                <h2 class="notifications-time-heading">This month</h2>
-                <!-- Dynamic active list structure targeted for operational interactions -->
-                <div class="notifications-list-container" id="notifications-dynamic-list"></div>
-            </div>
-        </main>
-
-        <!-- SCREEN 6: ACCOUNT PROFILE INTERFACE DASHBOARD -->
+        <!-- VIEW 3: PROFILE VIEWER SCREEN -->
         <main id="view-profile" class="main-content app-view hidden clean-white-bg">
             <div class="profile-header-top-bar">
                 <i class="fa-solid fa-gear invisible-icon"></i>
@@ -190,7 +141,7 @@
             </div>
         </main>
 
-        <!-- SCREEN 7: EDIT PROFILE CONTROL PANEL -->
+        <!-- VIEW 4: EDIT PROFILE WORKSPACE -->
         <main id="view-edit-profile" class="main-content app-view hidden clean-white-bg">
             <div class="edit-profile-header">
                 <button id="btn-back-from-edit" class="edit-nav-back"><i class="fa-solid fa-chevron-left"></i></button>
@@ -242,7 +193,7 @@
             </div>
         </main>
 
-        <!-- SCREEN 8: HISTORICAL STORIES ARCHIVE -->
+        <!-- VIEW 5: STORIES ARCHIVE PANEL -->
         <main id="view-archive" class="main-content app-view hidden clean-white-bg">
             <div class="archive-header-bar">
                 <button id="btn-back-from-archive" class="archive-nav-back"><i class="fa-solid fa-chevron-left"></i></button>
@@ -270,10 +221,6 @@
 
     </div>
 
-    <!-- Core Runtime Module Chains -->
-    <script src="search.js"></script>
-    <script src="messages.js"></script>
-    <script src="notifications.js"></script>
     <script src="archive.js"></script>
     <script src="edit-profile.js"></script>
     <script src="post.js"></script>
@@ -282,4 +229,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
