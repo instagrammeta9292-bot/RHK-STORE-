@@ -1,23 +1,20 @@
-function launchPostUpload() {
-    const picker = document.getElementById('global-file-picker');
-    picker.removeAttribute('multiple');
-    picker.accept = "image/*"; 
-    picker.onchange = null;
-    picker.click();
+import { db, auth } from './firebase-config.js';
+import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    picker.onchange = async (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
+export async function uploadPost(file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "rhk_upload");
 
-        const result = await sendToCloudinary(file);
-        if(result.success) {
-            const generatedItemId = 'item-' + Math.floor(Math.random() * 888888 + 111111);
-            
-            appDatabaseState.posts.unshift({ id: generatedItemId, url: result.url, mode: result.mode });
-            saveAppStateToVault(); // Save instantly to local storage
-            
-            appendMediaToTimelineFeed(generatedItemId, result.url, result.mode, 'POST');
-            syncProfileDashboardDOM();
-        }
-    };
+    const res = await fetch("https://api.cloudinary.com/v1_1/nhy9Ifkt/auto/upload", {
+        method: "POST", body: formData
+    });
+    const data = await res.json();
+
+    await addDoc(collection(db, "posts"), {
+        url: data.secure_url,
+        uid: auth.currentUser.uid,
+        createdAt: new Date()
+    });
+    alert("Post Saved!");
 }
