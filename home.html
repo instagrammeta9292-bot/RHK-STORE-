@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>RHK Home</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>RHK</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -21,66 +24,152 @@ font-family:Arial,sans-serif;
 }
 
 body{
-background:#111;
+background:#000;
 color:white;
+padding-bottom:80px;
 }
 
 header{
+
+position:fixed;
+top:0;
+left:0;
+right:0;
+
+height:60px;
+
 background:#000;
-padding:18px;
-text-align:center;
-font-size:28px;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+font-size:32px;
+
 font-weight:bold;
-border-bottom:1px solid #333;
+
+border-bottom:1px solid #222;
+
+z-index:1000;
+
 }
 
-.container{
-max-width:500px;
-margin:30px auto;
-padding:20px;
+.feed{
+
+margin-top:70px;
+
 }
 
-.card{
-background:#1b1b1b;
-padding:25px;
-border-radius:20px;
-text-align:center;
+.post{
+
+background:#111;
+
+margin-bottom:15px;
+
 }
 
-.avatar{
-width:120px;
-height:120px;
+.post-header{
+
+display:flex;
+
+align-items:center;
+
+padding:12px;
+
+}
+
+.post-header img{
+
+width:45px;
+
+height:45px;
+
 border-radius:50%;
+
+margin-right:10px;
+
 object-fit:cover;
-background:#333;
-margin-bottom:20px;
+
 }
 
-h2{
-margin-bottom:10px;
-}
+.username{
 
-.info{
-margin:10px 0;
-font-size:17px;
-color:#ddd;
-}
-
-button{
-margin-top:25px;
-width:100%;
-padding:15px;
-border:none;
-border-radius:10px;
-background:#ff3b30;
-color:white;
 font-size:18px;
+
 font-weight:bold;
-cursor:pointer;
+
 }
 
-button:hover{
-background:#d92b20;
+.post-image{
+
+width:100%;
+
+display:block;
+
+}
+
+.caption{
+
+padding:12px;
+
+font-size:16px;
+
+}
+
+.actions{
+
+display:flex;
+
+padding:10px;
+
+font-size:26px;
+
+gap:20px;
+
+}
+
+.bottom-nav{
+
+position:fixed;
+
+bottom:0;
+
+left:0;
+
+right:0;
+
+height:65px;
+
+background:#111;
+
+display:flex;
+
+justify-content:space-around;
+
+align-items:center;
+
+border-top:1px solid #333;
+
+}
+
+.bottom-nav a{
+
+color:white;
+
+text-decoration:none;
+
+font-size:14px;
+
+text-align:center;
+
+}
+
+.bottom-nav a:hover{
+
+color:#00ff88;
+
 }
 
 </style>
@@ -90,99 +179,35 @@ background:#d92b20;
 <body>
 
 <header>
+
 RHK
+
 </header>
 
-<div class="container">
-
-<div class="card">
-
-<img id="photo"
-class="avatar"
-src="https://via.placeholder.com/120">
-
-<h2 id="fullname">Loading...</h2>
-
-<div class="info">
-<b>Username:</b>
-<span id="username"></span>
-</div>
-
-<div class="info">
-<b>Email:</b>
-<span id="email"></span>
-</div>
-
-<div class="info">
-<b>Bio:</b>
-<span id="bio"></span>
-</div>
-
-<button onclick="logout()">
-Logout
-</button>
+<div id="feed" class="feed">
 
 </div>
 
-</div>
+<nav class="bottom-nav">
 
-<script>
+<a href="home.html">
+🏠<br>Home
+</a>
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAHUju18VBAdDFoQJhsVWp7oUqBxhfwThE",
-  authDomain: "rhk-app-e34c6.firebaseapp.com",
-  projectId: "rhk-app-e34c6",
-  storageBucket: "rhk-app-e34c6.firebasestorage.app",
-  messagingSenderId: "1016565109006",
-  appId: "1:1016565109006:web:eb7ec260a601a16e5ac75f",
-  measurementId: "G-814PTRRQVQ"
-};
+<a href="search.html">
+🔍<br>Search
+</a>
 
-firebase.initializeApp(firebaseConfig);
+<a href="upload.html">
+➕<br>Upload
+</a>
 
-const auth=firebase.auth();
-const db=firebase.firestore();
+<a href="notifications.html">
+❤️<br>Activity
+</a>
 
-auth.onAuthStateChanged(async(user)=>{
+<a href="profile.html">
+👤<br>Profile
+</a>
 
-if(!user){
-
-window.location="index.html";
-return;
-
-}
-
-const doc=await db.collection("users").doc(user.uid).get();
-
-if(doc.exists){
-
-const data=doc.data();
-
-document.getElementById("fullname").innerHTML=data.fullname;
-document.getElementById("username").innerHTML="@"+data.username;
-document.getElementById("bio").innerHTML=data.bio;
-document.getElementById("email").innerHTML=data.email;
-
-if(data.photo!=""){
-document.getElementById("photo").src=data.photo;
-}
-
-}
-
-});
-
-function logout(){
-
-auth.signOut().then(()=>{
-
-window.location="index.html";
-
-});
-
-}
-
-</script>
-
-</body>
-</html>
+</nav>
