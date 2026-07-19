@@ -12,10 +12,12 @@ function launchPostUpload() {
         const result = await sendToCloudinary(file);
         if(result.success) {
             const generatedItemId = 'item-' + Math.floor(Math.random() * 888888 + 111111);
+            
             appDatabaseState.posts.unshift({ id: generatedItemId, url: result.url, mode: result.mode });
+            saveAppStateToVault(); // Save instantly to local storage
+            
             appendMediaToTimelineFeed(generatedItemId, result.url, result.mode, 'POST');
             syncProfileDashboardDOM();
         }
     };
 }
-
