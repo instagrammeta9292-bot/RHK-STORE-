@@ -1,5 +1,8 @@
-// Global Application Database State Vault
-const appDatabaseState = {
+// LocalStorage Persistence Configuration
+const STORAGE_KEY = "rhk_platform_vault";
+
+// Core Database Architecture Setup with reactive LocalStorage hydration pipeline
+let appDatabaseState = {
     userProfile: {
         username: "ragha_v0069",
         displayName: "Raghav Hk",
@@ -8,7 +11,8 @@ const appDatabaseState = {
         avatarUrl: "", 
         followers: 19,
         following: 30,
-        showThreadsBadge: true
+        showThreadsBadge: true,
+        note: "Note..."
     },
     posts: [],
     reels: [],
@@ -17,16 +21,32 @@ const appDatabaseState = {
     archivedStories: []
 };
 
+// Auto hydration wrapper checking database persistence fields
+function saveAppStateToVault() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appDatabaseState));
+}
+
+function loadAppStateFromVault() {
+    const cached = localStorage.getItem(STORAGE_KEY);
+    if(cached) {
+        try {
+            appDatabaseState = JSON.parse(cached);
+        } catch(e) {
+            console.error("Data tracking corrupted. Re-building database structural map...");
+        }
+    }
+}
+
 let appGlobalAudioMuted = true;
 let currentActiveViewKey = 'home';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Load historical storage profiles data immediately upon initialization execution pipelines
+    loadAppStateFromVault();
+
     const views = {
         home: document.getElementById('view-home'),
-        search: document.getElementById('view-search'),
         reels: document.getElementById('view-reels'),
-        messages: document.getElementById('view-messages'),
-        notifications: document.getElementById('view-notifications'),
         profile: document.getElementById('view-profile'),
         editProfile: document.getElementById('view-edit-profile'),
         archive: document.getElementById('view-archive')
@@ -34,9 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const navButtons = {
         home: document.getElementById('nav-home'),
-        search: document.getElementById('nav-search'),
         reels: document.getElementById('nav-reels'),
-        messages: document.getElementById('nav-messages'),
         profile: document.getElementById('nav-profile')
     };
 
@@ -44,22 +62,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const bottomNavbar = document.getElementById('app-bottom-navbar');
 
     window.navigateToScreen = function(screenKey) {
+        currentActiveViewKey = screenKey;
         haltAllBackgroundVideos();
+
         Object.keys(views).forEach(key => views[key].classList.add('hidden'));
         views[screenKey].classList.remove('hidden');
 
         Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
         if(navButtons[screenKey]) navButtons[screenKey].classList.add('active');
 
-        // Layout state styling adaptions
         if (screenKey === 'home') {
             topNavbar.classList.remove('hidden');
             bottomNavbar.classList.remove('hidden');
             evaluateHomeFeedAutoplay();
-        } else if (screenKey === 'search') {
-            topNavbar.classList.add('hidden');
-            bottomNavbar.classList.remove('hidden');
-            if(typeof syncSearchDiscoverGridDOM === 'function') syncSearchDiscoverGridDOM();
         } else if (screenKey === 'reels') {
             topNavbar.classList.add('hidden');
             bottomNavbar.classList.remove('hidden');
@@ -68,32 +83,21 @@ document.addEventListener('DOMContentLoaded', () => {
             topNavbar.classList.add('hidden');
             bottomNavbar.classList.remove('hidden');
             syncProfileDashboardDOM();
-        } else if (screenKey === 'messages' || screenKey === 'notifications') {
-            topNavbar.classList.add('hidden');
-            bottomNavbar.classList.remove('hidden');
-            if(screenKey === 'notifications' && typeof generateNotificationsListDOM === 'function') {
-                generateNotificationsListDOM();
-            }
         } else {
             topNavbar.classList.add('hidden');
             bottomNavbar.classList.add('hidden');
         }
     };
 
-    // Global click hooks
     navButtons.home.addEventListener('click', () => navigateToScreen('home'));
-    navButtons.search.addEventListener('click', () => navigateToScreen('search'));
     navButtons.reels.addEventListener('click', () => navigateToScreen('reels'));
-    navButtons.messages.addEventListener('click', () => navigateToScreen('messages'));
     navButtons.profile.addEventListener('click', () => navigateToScreen('profile'));
 
-    // Top Header Actions Routing Hooks
-    document.getElementById('btn-notifications').addEventListener('click', () => navigateToScreen('notifications'));
-    document.getElementById('btn-messages-back-to-home').addEventListener('click', () => navigateToScreen('home'));
-    document.getElementById('btn-notifications-back-to-home').addEventListener('click', () => navigateToScreen('home'));
-
+    document.getElementById('nav-search').addEventListener('click', () => alert('Search Engine tab initialized.'));
+    document.getElementById('nav-messages').addEventListener('click', () => alert('Direct Messages pipeline opened.'));
     document.getElementById('btn-edit-profile-view').addEventListener('click', () => navigateToScreen('editProfile'));
     document.getElementById('btn-view-archive-view').addEventListener('click', () => navigateToScreen('archive'));
+
     document.getElementById('profile-avatar-display').addEventListener('click', () => {
         if(typeof launchAvatarDirectUpload === 'function') launchAvatarDirectUpload();
     });
@@ -107,32 +111,35 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('link-share-first').addEventListener('click', () => launchPostUpload());
 
     document.getElementById('note-bubble').addEventListener('click', () => {
-        const thought = prompt("Share a status thought note:", document.getElementById('note-text-display').innerText);
-        if(thought !== null && thought.trim() !== "") document.getElementById('note-text-display').innerText = thought;
+        const thought = prompt("Share a status thought note:", appDatabaseState.userProfile.note);
+        if(thought !== null && thought.trim() !== "") {
+            appDatabaseState.userProfile.note = thought;
+            document.getElementById('note-text-display').innerText = thought;
+            saveAppStateToVault();
+        }
     });
 
     views.home.addEventListener('scroll', evaluateHomeFeedAutoplay);
     document.getElementById('dynamic-reels-slider').addEventListener('scroll', evaluateReelsSliderAutoplay);
 
-    // Profile Portfolio Grid Sub-Tab Switcher Logic
     const tabGrid = document.getElementById('tab-trigger-grid');
     const tabSaved = document.getElementById('tab-trigger-saved');
-    const tabTagged = document.getElementById('tab-trigger-tagged');
 
     tabGrid.addEventListener('click', () => {
-        tabGrid.classList.add('active'); tabSaved.classList.remove('active'); tabTagged.classList.remove('active');
+        tabGrid.classList.add('active'); tabSaved.classList.remove('active');
         document.getElementById('profile-active-grid').classList.remove('hidden');
         document.getElementById('profile-saved-grid').classList.add('hidden');
     });
 
     tabSaved.addEventListener('click', () => {
-        tabGrid.classList.remove('active'); tabSaved.classList.add('active'); tabTagged.classList.remove('active');
+        tabGrid.classList.remove('active'); tabSaved.classList.add('active');
         document.getElementById('profile-active-grid').classList.add('hidden');
         document.getElementById('profile-saved-grid').classList.remove('hidden');
         renderProfileSavedTabItems();
     });
 
-    applyUserIdentitySystemState();
+    // Populate timeline and active layouts dynamically from saved disk states maps
+    rebuildActiveViewsFromPersistedState();
 });
 
 function haltAllBackgroundVideos() {
@@ -141,7 +148,8 @@ function haltAllBackgroundVideos() {
 
 function evaluateHomeFeedAutoplay() {
     if (currentActiveViewKey !== 'home') return;
-    const feedVideos = document.getElementById('view-home').querySelectorAll('.post-display-file');
+    const homeView = document.getElementById('view-home');
+    const feedVideos = homeView.querySelectorAll('.post-display-file');
     let videoActivated = false;
 
     feedVideos.forEach(video => {
@@ -162,7 +170,8 @@ function evaluateHomeFeedAutoplay() {
 
 function evaluateReelsSliderAutoplay() {
     if (currentActiveViewKey !== 'reels') return;
-    const snapCards = document.getElementById('dynamic-reels-slider').querySelectorAll('.reel-snap-card');
+    const slider = document.getElementById('dynamic-reels-slider');
+    const snapCards = slider.querySelectorAll('.reel-snap-card');
     
     snapCards.forEach(card => {
         const rect = card.getBoundingClientRect();
@@ -189,8 +198,11 @@ window.toggleGlobalFeedAudioState = function(clickedButton, targetVideoId) {
 };
 
 function syncAudioToggleButtonVisuals(activeVideo) {
-    const btn = activeVideo.parentElement.querySelector('.feed-audio-toggle-overlay-btn');
-    if(btn) btn.innerHTML = appGlobalAudioMuted ? `<i class="fa-solid fa-volume-xmark"></i>` : `<i class="fa-solid fa-volume-high"></i>`;
+    const parentFrame = activeVideo.parentElement;
+    const btn = parentFrame.querySelector('.feed-audio-toggle-overlay-btn');
+    if(btn) {
+        btn.innerHTML = appGlobalAudioMuted ? `<i class="fa-solid fa-volume-xmark"></i>` : `<i class="fa-solid fa-volume-high"></i>`;
+    }
 }
 
 function applyUserIdentitySystemState() {
@@ -199,6 +211,7 @@ function applyUserIdentitySystemState() {
     document.getElementById('profile-name-display').innerText = data.displayName;
     document.getElementById('profile-followers-count').innerText = data.followers;
     document.getElementById('profile-following-count').innerText = data.following;
+    document.getElementById('note-text-display').innerText = data.note || "Note...";
     
     const bioDisplay = document.getElementById('profile-bio-description-display');
     if(data.bio) { bioDisplay.classList.remove('hidden'); bioDisplay.innerText = data.bio; } 
@@ -221,7 +234,7 @@ function applyUserIdentitySystemState() {
 
     avatarSelectors.forEach(parent => {
         if(!parent) return;
-        parent.innerHTML = data.avatarUrl ? `<img src="${data.avatarUrl}" alt="Avatar">` : `<i class="fa-solid fa-user"></i>`;
+        parent.innerHTML = data.avatarUrl ? `<img src="${data.avatarUrl}" alt="User Avatar">` : `<i class="fa-solid fa-user"></i>`;
     });
 }
 
@@ -256,6 +269,7 @@ function syncProfileDashboardDOM() {
 function renderProfileSavedTabItems() {
     const savedGrid = document.getElementById('profile-saved-grid');
     savedGrid.innerHTML = '';
+    
     const allItems = [...appDatabaseState.reels, ...appDatabaseState.posts];
     const savedItemsList = allItems.filter(i => appDatabaseState.savedItemIds.includes(i.id));
 
@@ -279,12 +293,14 @@ function appendMediaToTimelineFeed(id, mediaUrl, mode, typeLabel) {
     if(emptyPlaceholder) emptyPlaceholder.classList.add('hidden');
 
     const profile = appDatabaseState.userProfile;
+    
     let innerContent = mode === 'video' ? 
         `<video id="${id}" src="${mediaUrl}" class="post-display-file" loop muted playsinline></video>
          <button class="feed-audio-toggle-overlay-btn" onclick="toggleGlobalFeedAudioState(this, '${id}')"><i class="fa-solid fa-volume-xmark"></i></button>` : 
-        `<img src="${mediaUrl}" class="post-display-file" alt="Feed media">`;
+        `<img src="${mediaUrl}" class="post-display-file" alt="RHK Media item">`;
         
     let avatarTag = profile.avatarUrl ? `<img src="${profile.avatarUrl}">` : `<i class="fa-solid fa-user"></i>`;
+
     const isSaved = appDatabaseState.savedItemIds.includes(id);
     const saveIconClass = isSaved ? 'fa-solid fa-bookmark' : 'fa-regular fa-bookmark';
 
@@ -298,7 +314,7 @@ function appendMediaToTimelineFeed(id, mediaUrl, mode, typeLabel) {
                 </div>
                 <button class="post-options-btn"><i class="fa-solid fa-ellipsis"></i></button>
             </div>
-            <div class="post-media-frame">${innerContent}</div>
+            <div class="post-media-frame" onclick="handleReelGestureTouchTapSequence(null, '${id}')">${innerContent}</div>
             <div class="post-actions-bar">
                 <div class="left-actions">
                     <i class="fa-regular fa-heart post-action-icon" id="like-icon-${id}" onclick="handleDynamicItemLikeClick('${id}')"></i>
@@ -310,12 +326,12 @@ function appendMediaToTimelineFeed(id, mediaUrl, mode, typeLabel) {
         </article>
     `;
     feedContainer.appendChild(document.createRange().createContextualFragment(htmlCard));
-    setTimeout(evaluateHomeFeedAutoplay, 300);
 }
 
 window.handleDynamicItemLikeClick = function(id) {
     const likeIcon = document.getElementById(`like-icon-${id}`) || document.getElementById(`reel-like-icon-${id}`);
     if(!likeIcon) return;
+
     if(likeIcon.classList.contains('fa-regular')) {
         likeIcon.className = 'fa-solid fa-heart post-action-icon';
         likeIcon.style.color = '#ff2d55';
@@ -336,22 +352,62 @@ window.handleDynamicItemSaveToggle = function(id) {
         appDatabaseState.savedItemIds.splice(index, 1);
         saveIcons.forEach(icon => { if(icon) icon.className = 'fa-regular fa-bookmark post-action-icon'; });
     }
+    saveAppStateToVault();
     renderProfileSavedTabItems();
 };
 
 window.handleMockCommentAction = function(id) {
     const msg = prompt("Write a comment:");
-    if(msg) alert(`Comment shared: "${msg}"`);
+    if(msg) alert(`Comment shared successfully: "${msg}"`);
 };
 
-window.handleMockShareAction = function(id) { alert("Share sheets interface protocol initialized."); };
+window.handleMockShareAction = function(id) {
+    alert("Share sheets interface protocol initialized successfully!");
+};
+
+function rebuildActiveViewsFromPersistedState() {
+    applyUserIdentitySystemState();
+    
+    // 1. Re-render Stories Tray
+    Object.keys(appDatabaseState.activeStories).forEach(storyId => {
+        const item = appDatabaseState.activeStories[storyId];
+        // Calculate if it has expired while user was offline
+        const timePassed = Date.now() - item.createdAt;
+        if(timePassed >= 24 * 60 * 60 * 1000) {
+            // Self-clean expire to archive cleanly
+            if(typeof archiveExpiredStory === 'function') archiveExpiredStory(storyId, item);
+            delete appDatabaseState.activeStories[storyId];
+        } else {
+            injectStoryNodeToDOM(storyId, item.url, item.mode, timePassed);
+        }
+    });
+    saveAppStateToVault();
+
+    // 2. Re-render Feed Timelines & Reels Combinations ordered chronologically
+    const combinedFeeds = [];
+    appDatabaseState.posts.forEach(p => combinedFeeds.push({ ...p, type: 'POST' }));
+    appDatabaseState.reels.forEach(r => combinedFeeds.push({ ...r, type: 'REEL' }));
+    
+    // Reverse loop to restore accurate chronology mapping top-to-bottom
+    combinedFeeds.reverse().forEach(item => {
+        appendMediaToTimelineFeed(item.id, item.url, item.mode, item.type);
+        if(item.type === 'REEL') {
+            appendMediaToVerticalReelsSlider(item.id, item.url, item.mode);
+        }
+    });
+
+    // 3. Rehydrate Archived View Lists Portfolio Grids
+    if(typeof syncArchiveContainerGridDOM === 'function') syncArchiveContainerGridDOM();
+    
+    syncProfileDashboardDOM();
+}
 
 async function sendToCloudinary(file) {
     const cloudName = "nhy9lfkt";
     const uploadPreset = "rhk_upload";
     const mode = file.type.startsWith('video/') ? 'video' : 'image';
-    const url = `https://api.cloudinary.com/v1_1/${cloudName}/${mode}/upload`;
     
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/${mode}/upload`;
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', uploadPreset);
@@ -362,8 +418,11 @@ async function sendToCloudinary(file) {
             const data = await res.json();
             return { success: true, url: data.secure_url, mode: mode };
         }
+        const err = await res.json();
+        alert(`Cloudinary Error: ${err.error.message}`);
         return { success: false };
     } catch (e) {
+        alert("Network communication error.");
         return { success: false };
     } finally {
         document.getElementById('global-file-picker').value = "";
