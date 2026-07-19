@@ -211,3 +211,118 @@ RHK
 </a>
 
 </nav>
+  <script>
+
+// ==========================
+// Firebase Config
+// Replace with YOUR Firebase config
+// ==========================
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAHUju18VBAdDFoQJhsVWp7oUqBxhfwThE",
+  authDomain: "rhk-app-e34c6.firebaseapp.com",
+  projectId: "rhk-app-e34c6",
+  storageBucket: "rhk-app-e34c6.firebasestorage.app",
+  messagingSenderId: "1016565109006",
+  appId: "1:1016565109006:web:eb7ec260a601a16e5ac75f",
+  measurementId: "G-814PTRRQVQ"
+};
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ==========================
+// Check Login
+// ==========================
+
+auth.onAuthStateChanged(async(user)=>{
+
+    if(!user){
+
+        window.location="index.html";
+        return;
+
+    }
+
+    loadPosts();
+
+});
+
+// ==========================
+// Load Feed
+// ==========================
+
+async function loadPosts(){
+
+    const feed=document.getElementById("feed");
+
+    feed.innerHTML="";
+
+    const snapshot=await db.collection("posts")
+    .orderBy("createdAt","desc")
+    .get();
+
+    snapshot.forEach(doc=>{
+
+        const post=doc.data();
+
+        feed.innerHTML+=`
+
+        <div class="post">
+
+            <div class="post-header">
+
+                <img src="${post.photo || 'https://via.placeholder.com/50'}">
+
+                <div>
+
+                    <div class="username">
+
+                        ${post.username}
+
+                    </div>
+
+                    <small>
+
+                        ${post.fullname}
+
+                    </small>
+
+                </div>
+
+            </div>
+
+            <img
+            class="post-image"
+            src="${post.imageUrl}">
+
+            <div class="actions">
+
+                ❤️ 🤍 💬 📤
+
+            </div>
+
+            <div class="caption">
+
+                <b>@${post.username}</b>
+
+                ${post.caption}
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
