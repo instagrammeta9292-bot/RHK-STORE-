@@ -1,48 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Create Profile - RHK</title>
 
-<link rel="stylesheet" href="style.css">
+<title>RHK Home</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#111;
+color:white;
+}
+
+header{
+background:#000;
+padding:18px;
+text-align:center;
+font-size:28px;
+font-weight:bold;
+border-bottom:1px solid #333;
+}
+
+.container{
+max-width:500px;
+margin:30px auto;
+padding:20px;
+}
+
+.card{
+background:#1b1b1b;
+padding:25px;
+border-radius:20px;
+text-align:center;
+}
+
+.avatar{
+width:120px;
+height:120px;
+border-radius:50%;
+object-fit:cover;
+background:#333;
+margin-bottom:20px;
+}
+
+h2{
+margin-bottom:10px;
+}
+
+.info{
+margin:10px 0;
+font-size:17px;
+color:#ddd;
+}
+
+button{
+margin-top:25px;
+width:100%;
+padding:15px;
+border:none;
+border-radius:10px;
+background:#ff3b30;
+color:white;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+background:#d92b20;
+}
+
+</style>
+
 </head>
 
 <body>
 
+<header>
+RHK
+</header>
+
+<div class="container">
+
 <div class="card">
 
-<h1>RHK</h1>
-
 <img id="photo"
-src="https://via.placeholder.com/120"
-class="avatar">
+class="avatar"
+src="https://via.placeholder.com/120">
 
-<input
-type="text"
-id="username"
-placeholder="Choose a username">
+<h2 id="fullname">Loading...</h2>
 
-<input
-type="text"
-id="name"
-placeholder="Full Name">
+<div class="info">
+<b>Username:</b>
+<span id="username"></span>
+</div>
 
-<textarea
-id="bio"
-placeholder="Bio"></textarea>
+<div class="info">
+<b>Email:</b>
+<span id="email"></span>
+</div>
 
-<button onclick="saveProfile()">
-Continue
+<div class="info">
+<b>Bio:</b>
+<span id="bio"></span>
+</div>
+
+<button onclick="logout()">
+Logout
 </button>
 
 </div>
 
-<script src="profile.js"></script>
+</div>
+
+<script>
+
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAHUju18VBAdDFoQJhsVWp7oUqBxhfwThE",
+  authDomain: "rhk-app-e34c6.firebaseapp.com",
+  projectId: "rhk-app-e34c6",
+  storageBucket: "rhk-app-e34c6.firebasestorage.app",
+  messagingSenderId: "1016565109006",
+  appId: "1:1016565109006:web:eb7ec260a601a16e5ac75f",
+  measurementId: "G-814PTRRQVQ"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth=firebase.auth();
+const db=firebase.firestore();
+
+auth.onAuthStateChanged(async(user)=>{
+
+if(!user){
+
+window.location="index.html";
+return;
+
+}
+
+const doc=await db.collection("users").doc(user.uid).get();
+
+if(doc.exists){
+
+const data=doc.data();
+
+document.getElementById("fullname").innerHTML=data.fullname;
+document.getElementById("username").innerHTML="@"+data.username;
+document.getElementById("bio").innerHTML=data.bio;
+document.getElementById("email").innerHTML=data.email;
+
+if(data.photo!=""){
+document.getElementById("photo").src=data.photo;
+}
+
+}
+
+});
+
+function logout(){
+
+auth.signOut().then(()=>{
+
+window.location="index.html";
+
+});
+
+}
+
+</script>
 
 </body>
 </html>
