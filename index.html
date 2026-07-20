@@ -2,15 +2,41 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>RHK Platform</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHK - Feed</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="dynamic-feed-list"></div>
-    <!-- Load scripts as modules -->
+    <div class="app-container">
+        <!-- Top Navigation / Brand Header -->
+        <header class="rhk-header">
+            <h2>RHK</h2>
+            <button id="logoutBtn" class="text-btn">Log Out</button>
+        </header>
+
+        <!-- Main Feed Section -->
+        <main class="feed-container">
+            <div id="dynamic-feed-list">
+                <p class="loading-text">Loading posts...</p>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="bottom-nav">
+            <button onclick="window.location.href='index.html'">🏠</button>
+            <button id="triggerUpload">➕</button>
+            <button id="profileBtn">👤</button>
+        </nav>
+    </div>
+
+    <!-- Hidden file input for Cloudinary media picking -->
+    <input type="file" id="global-file-picker" accept="image/*,video/*" style="display: none;">
+
+    <!-- Core App Scripts (Loaded as Modules) -->
     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="auth.js"></script>
     <script type="module" src="post.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
+
