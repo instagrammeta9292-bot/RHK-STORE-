@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RHK - Complete Your Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card onboarding-card">
+            <h2>Set up your RHK profile</h2>
+            <p class="sub-text">Add your details to get started</p>
+            
+            <div class="avatar-upload">
+                <label for="profilePicInput" class="avatar-label">
+                    <img id="avatarPreview" src="https://via.placeholder.com/100" alt="Avatar">
+                    <span>Change Photo</span>
+                </label>
+                <input type="file" id="profilePicInput" accept="image/*" style="display: none;">
+            </div>
+
+            <input type="text" id="username" placeholder="Username">
+            <textarea id="bio" placeholder="Bio (Tell us about your store or you)"></textarea>
+            
+            <div class="privacy-select">
+                <label>Account Privacy:</label>
+                <select id="privacy">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                </select>
+            </div>
+
+            <button id="completeBtn">Complete Profile</button>
+        </div>
+    </div>
+    <script type="module" src="onboarding.js"></script>
+</body>
+</html>
+
